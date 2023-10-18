@@ -1,8 +1,9 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QColorDialog, QLineEdit, QFormLayout, QLabel
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtGui import QIcon, QPainter, QPen, QBrush
+from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5.QtGui import QColor
+from PyQt5.uic.properties import QtGui
 
 
 class App(QWidget):
@@ -44,11 +45,7 @@ class App(QWidget):
         button.move(10, 10)
         button.clicked.connect(self.on_click)
 
-        self.draw_label = QLabel()
-        self.draw_label.setText("Current Color")
-
         flo.addRow(button)
-        flo.addRow(self.draw_label)
         self.setLayout(flo)
         self.show()
 
@@ -66,6 +63,8 @@ class App(QWidget):
 
     def FromHLS(self):
         value = [int(word) for word in self.HLS_in.text().split(" ")]
+        value[1] *= 255
+        value[2] *= 255
         self.SetValue(QColor.fromHsl(*value))
 
     def openColorDialog(self):
@@ -76,14 +75,30 @@ class App(QWidget):
             self.SetValue(color)
 
     def SetValue(self, color: QColor):
+        self.color = color
         self.rgb_in.setText(str(color.red()) + " " + str(color.green()) + " " + str(color.blue()))
         tp = color.getCmyk()
         str_tp = str(tp[0]) + " " + str(tp[1]) + " " + str(tp[2]) + " " + str(tp[3])
         tp_2 = color.getHsl()
-        str_tp_2 = str(tp_2[0]) + " " + str(tp_2[1]) + " " + str(tp_2[2])
+        str_tp_2 = str(tp_2[0]) + " " + "{0:.3f}".format(tp_2[1] / 255) + " " + "{0:.3f}".format(tp_2[2] / 255)
         self.CMYK_in.setText(str_tp)
         self.HLS_in.setText(str_tp_2)
-        self.draw_label.setStyleSheet(('* { color: ' + color.name() + ' }'))
+        self.update()
+
+    def paintEvent(self, e):
+        qp = QPainter()
+        qp.begin(self)
+        self.drawLines(qp)
+        qp.end()
+
+    def drawLines(self, qp):
+        brush = QBrush(Qt.SolidPattern)
+        try:
+            brush.setColor(self.color)
+        except:
+            brush.setColor(QColor.fromRgb(0, 0, 0))
+        qp.setBrush(brush)
+        qp.drawRect(10, 130, 300, 60)
 
 
 if __name__ == '__main__':
