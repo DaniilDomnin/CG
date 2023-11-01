@@ -2,7 +2,7 @@ import cv2 as cv
 from tkinter import ttk, Tk
 from PIL import ImageTk, Image
 
-path = "example.jpg"
+path = "images/zzz.jpg"
 
 
 class Solution:
@@ -54,11 +54,11 @@ class Solution:
         return self.make_image(th)
 
     def adaptive(self, image):
-        th = cv.adaptiveThreshold(image, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 23, 5)
+        th = cv.adaptiveThreshold(image, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 9, 3)
         return self.make_image(th)
 
     def aliasing(self, image):
-        th = cv.GaussianBlur(image, (13, 13), 0)
+        th = cv.blur(image, (8, 8), )
         return self.make_image(th)
 
 
